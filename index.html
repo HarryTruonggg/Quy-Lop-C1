@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quỹ Nhóm</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; padding: 24px; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  h1 { text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #64748b; margin-bottom: 24px; }
+  .total-card { background: linear-gradient(135deg,#10b981,#059669); color:#fff;
+    border-radius:16px; padding:24px; text-align:center; margin-bottom:24px;
+    box-shadow:0 4px 14px rgba(16,185,129,.3); }
+  .total-card .label { font-size:14px; opacity:.9; }
+  .total-card .amount { font-size:36px; font-weight:700; margin-top:4px; }
+  .total-card .meta { font-size:13px; opacity:.85; margin-top:6px; }
+  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .card h2 { font-size:18px; margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #e2e8f0; }
+  th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; }
+  .amount-cell { font-weight:600; color:#059669; }
+  .empty { text-align:center; color:#94a3b8; padding:24px; }
+  .charts { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .chart-box { background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .chart-box h2 { font-size:16px; margin-bottom:12px; }
+  .refresh { text-align:center; margin-top:16px; font-size:12px; color:#94a3b8; }
+  @media (max-width:768px){ .charts{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💰 Quỹ Nhóm</h1>
+  <p class="subtitle">Cập nhật công khai · <span id="lastUpdate"></span></p>
+
+  <div class="total-card">
+    <div class="label">TỔNG QUỸ HIỆN TẠI</div>
+    <div class="amount" id="totalAmount">...</div>
+    <div class="meta" id="totalMeta"></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Bảng kê chi tiết</h2>
+    <table>
+      <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th><th>Ghi chú</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div class="empty" id="emptyMsg" style="display:none">Chưa có dữ liệu.</div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-box"><h2>Theo thành viên</h2><canvas id="barChart"></canvas></div>
+    <div class="chart-box"><h2>Tỷ trọng</h2><canvas id="pieChart"></canvas></div>
+    <div class="chart-box" style="grid-column:1/-1"><h2>Quỹ lũy kế theo thời gian</h2><canvas id="lineChart"></canvas></div>
+  </div>
+  <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
+</div>
+
+<script>
+const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
+const COLORS = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#6366f1'];
+
+async function loadData() {
+  const res = await fetch('data.json?t=' + Date.now());
+  return (await res.json()).entries || [];
+}
+
+function render(entries) {
+  const total = entries.reduce((s,e) => s + e.amount, 0);
+  const members = [...new Set(entries.map(e => e.name))];
+  document.getElementById('totalAmount').textContent = fmt(total);
+  document.getElementById('totalMeta').textContent = `${members.length} thành viên · ${entries.length} lượt đóng`;
+  document.getElementById('lastUpdate').textContent = 'lúc ' + new Date().toLocaleString('vi-VN');
+  document.getElementById('emptyMsg').style.display = entries.length ? 'none' : 'block';
+
+  const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
+  document.getElementById('tableBody').innerHTML = sorted.map((e,i) => `
+    <tr><td>${i+1}</td><td>${e.date.split('-').reverse().join('/')}</td>
+    <td>${e.name}</td><td class="amount-cell">${fmt(e.amount)}</td><td>${e.note||'-'}</td></tr>`).join('');
+
+  const perMember = members.map(m => entries.filter(e=>e.name===m).reduce((s,e)=>s+e.amount,0));
+  new Chart(barChart, { type:'bar',
+    data:{ labels:members, datasets:[{data:perMember, backgroundColor:members.map((_,i)=>COLORS[i%10])}] },
+    options:{ plugins:{legend:{display:false}}, scales:{y:{ticks:{callback:v=>(v/1000)+'k'}}} } });
+  new Chart(pieChart, { type:'doughnut',
+    data:{ labels:members, datasets:[{data:perMember, backgroundColor:members.map((_,i)=>COLORS[i%10])}] },
+    options:{ plugins:{tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} (${(c.raw/total*100).toFixed(1)}%)`}}}} });
+
+  const map = new Map(); let cum = 0;
+  [...entries].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{ cum+=e.amount; map.set(e.date,cum); });
+  new Chart(lineChart, { type:'line',
+    data:{ labels:[...map.keys()].map(d=>d.split('-').reverse().join('/')),
+      datasets:[{label:'Tổng quỹ', data:[...map.values()], borderColor:'#10b981',
+        backgroundColor:'rgba(16,185,129,.15)', fill:true, tension:.3}]},
+    options:{ scales:{y:{ticks:{callback:v=>(v/1000)+'k'}}} } });
+}
+
+loadData().then(render);
+setInterval(() => location.reload(), 5*60*1000);
+</script>
+</body>
+</html>

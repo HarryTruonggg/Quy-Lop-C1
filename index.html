@@ -20,26 +20,32 @@
   .sum-chi { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 4px 14px rgba(245,158,11,.3); }
   .sum-ton { background:linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 4px 14px rgba(37,99,235,.3); }
 
-  /* Dropdown danh mục */
-  details { background:#fff; border-radius:16px; margin-bottom:16px;
-    box-shadow:0 2px 8px rgba(0,0,0,.06); overflow:hidden; }
+  /* Card danh mục (chứa title + các dropdown ghi chú) */
+  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px;
+    box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .card > h2 { font-size:18px; margin-bottom:14px; }
+
+  /* Dropdown theo ghi chú */
+  details { border:1px solid #e2e8f0; border-radius:12px; margin-bottom:10px; overflow:hidden; }
+  details[open] { border-color:#10b981; }
   summary { display:flex; justify-content:space-between; align-items:center;
-    padding:18px 20px; cursor:pointer; list-style:none; user-select:none;
-    font-size:16px; font-weight:600; transition:background .2s; }
+    padding:14px 16px; cursor:pointer; list-style:none; user-select:none;
+    font-size:15px; font-weight:600; transition:background .2s; }
   summary:hover { background:#f8fafc; }
   summary::-webkit-details-marker { display:none; }
-  summary .left { display:flex; align-items:center; gap:10px; }
-  summary .arrow { transition:transform .25s; color:#94a3b8; font-size:13px; }
+  summary .left { display:flex; align-items:center; gap:10px; min-width:0; }
+  summary .arrow { transition:transform .25s; color:#94a3b8; font-size:12px; flex-shrink:0; }
   details[open] summary .arrow { transform:rotate(90deg); }
-  summary .total { font-size:17px; font-weight:700; color:#059669; }
+  summary .note-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  summary .count { font-size:12px; color:#94a3b8; font-weight:400; flex-shrink:0; }
+  summary .total { font-size:15px; font-weight:700; color:#059669; flex-shrink:0; margin-left:12px; }
   summary .total.chi { color:#d97706; }
-  summary .count { font-size:12px; color:#94a3b8; font-weight:400; margin-left:8px; }
-  .body { padding:0 20px 20px; }
+  .body { padding:0 16px 14px; }
 
   table { width:100%; border-collapse:collapse; font-size:14px; }
-  th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #e2e8f0; }
+  th, td { padding:9px 10px; text-align:left; border-bottom:1px solid #e2e8f0; }
   th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; }
-  tr:hover td { background:#f8fafc; }
+  tr:last-child td { border-bottom:none; }
   .amount-cell { font-weight:600; color:#059669; }
   .amount-cell.chi { color:#d97706; }
   .empty { text-align:center; color:#94a3b8; padding:24px; background:#fff;
@@ -69,7 +75,7 @@
     </div>
   </div>
 
-  <!-- Các danh mục dạng dropdown, render tự động -->
+  <!-- Các danh mục, render tự động -->
   <div id="sections"></div>
 
   <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
@@ -77,10 +83,10 @@
 
 <script>
 // ===== CẤU HÌNH CÁC DANH MỤC =====
-// open:true = mặc định mở sẵn. Thêm mục mới chỉ cần thêm 1 dòng.
+// Thêm mục mới (VD phần Chi) chỉ cần thêm 1 dòng vào đây.
 const SECTIONS = [
-  { key:'thu', title:'Bảng kê phần Thu', icon:'📥', open:true },
-  // { key:'chi', title:'Bảng kê phần Chi', icon:'📤', open:false },
+  { key:'thu', title:'📥 BẢNG KÊ PHẦN THU', openFirst:true },
+  // { key:'chi', title:'📤 BẢNG KÊ PHẦN CHI', openFirst:false },
 ];
 
 const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
@@ -89,44 +95,64 @@ const byName = (a,b) => a.name.localeCompare(b.name, 'vi');
 async function loadData() {
   const res = await fetch('data.json?t=' + Date.now());
   const entries = (await res.json()).entries || [];
-  return entries.map(e => ({ ...e, type: e.type || 'thu' }));
+  return entries.map(e => ({ ...e, type: e.type || 'thu', note: (e.note || '').trim() || '(Không có ghi chú)' }));
 }
 
 function renderSection(sec, entries) {
   const items = entries.filter(e => e.type === sec.key);
   if (!items.length) return '';
 
-  // Tên A→Z, cùng tên thì theo ngày tăng dần
-  const sorted = [...items].sort((a,b) => byName(a,b) || a.date.localeCompare(b.date));
-  const secTotal = items.reduce((s,e) => s + e.amount, 0);
+  // Gom nhóm theo GHI CHÚ
+  const groups = new Map();
+  items.forEach(e => {
+    if (!groups.has(e.note)) groups.set(e.note, []);
+    groups.get(e.note).push(e);
+  });
 
-  const rows = sorted.map((e,i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${e.date.split('-').reverse().join('/')}</td>
-      <td>${e.name}</td>
-      <td class="amount-cell ${sec.key === 'chi' ? 'chi' : ''}">
-        ${sec.key === 'chi' ? '−' : ''}${fmt(e.amount)}</td>
-      <td>${e.note || '-'}</td>
-    </tr>`).join('');
+  // Nhóm sắp theo ngày mới nhất trong nhóm (mới trước)
+  const sortedGroups = [...groups.entries()].sort((a,b) => {
+    const lastA = a[1].reduce((m,e) => e.date > m ? e.date : m, '');
+    const lastB = b[1].reduce((m,e) => e.date > m ? e.date : m, '');
+    return lastB.localeCompare(lastA);
+  });
+
+  const dropdowns = sortedGroups.map(([note, list], gi) => {
+    // Trong nhóm: tên A→Z, cùng tên theo ngày tăng dần
+    const sorted = [...list].sort((a,b) => byName(a,b) || a.date.localeCompare(b.date));
+    const gTotal = sorted.reduce((s,e) => s + e.amount, 0);
+    const rows = sorted.map((e,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td>${e.date.split('-').reverse().join('/')}</td>
+        <td>${e.name}</td>
+        <td class="amount-cell ${sec.key === 'chi' ? 'chi' : ''}">
+          ${sec.key === 'chi' ? '−' : ''}${fmt(e.amount)}</td>
+      </tr>`).join('');
+
+    return `
+    <details ${sec.openFirst && gi === 0 ? 'open' : ''}>
+      <summary>
+        <span class="left">
+          <span class="arrow">▶</span>
+          <span class="note-title">${note}</span>
+          <span class="count">${sorted.length} lượt</span>
+        </span>
+        <span class="total ${sec.key === 'chi' ? 'chi' : ''}">${fmt(gTotal)}</span>
+      </summary>
+      <div class="body">
+        <table>
+          <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }).join('');
 
   return `
-  <details ${sec.open ? 'open' : ''}>
-    <summary>
-      <span class="left">
-        <span class="arrow">▶</span>
-        <span>${sec.icon} ${sec.title}</span>
-        <span class="count">${items.length} lượt · ${new Set(items.map(e=>e.name)).size} thành viên</span>
-      </span>
-      <span class="total ${sec.key === 'chi' ? 'chi' : ''}">${fmt(secTotal)}</span>
-    </summary>
-    <div class="body">
-      <table>
-        <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th><th>Ghi chú</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-  </details>`;
+  <div class="card">
+    <h2>${sec.title}</h2>
+    ${dropdowns}
+  </div>`;
 }
 
 function render(entries) {

@@ -5,29 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quỹ Lớp C1</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; padding: 24px; }
-  .container { max-width: 1000px; margin: 0 auto; }
-  h1 { text-align: center; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #64748b; margin-bottom: 24px; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f4f8; color:#1e293b; padding:24px; }
+  .container { max-width:1000px; margin:0 auto; }
+  h1 { text-align:center; margin-bottom:4px; }
+  .subtitle { text-align:center; color:#64748b; margin-bottom:24px; }
 
-  .total-card { background: linear-gradient(135deg,#10b981,#059669); color:#fff;
-    border-radius:16px; padding:28px; text-align:center; margin-bottom:24px;
-    box-shadow:0 4px 14px rgba(16,185,129,.3); }
-  .total-card .label { font-size:14px; opacity:.9; letter-spacing:1px; }
-  .total-card .amount { font-size:42px; font-weight:700; margin-top:6px; }
-  .total-card .meta { font-size:13px; opacity:.85; margin-top:8px; }
+  /* 3 thẻ tổng quan */
+  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+  .sum-card { border-radius:16px; padding:20px; text-align:center; color:#fff; }
+  .sum-card .label { font-size:13px; opacity:.9; letter-spacing:1px; }
+  .sum-card .amount { font-size:28px; font-weight:700; margin-top:6px; }
+  .sum-thu  { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 4px 14px rgba(16,185,129,.3); }
+  .sum-chi  { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 4px 14px rgba(245,158,11,.3); }
+  .sum-ton  { background:linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 4px 14px rgba(37,99,235,.3); }
 
-  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px;
-    box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
   .card h2 { font-size:18px; margin-bottom:16px; }
   table { width:100%; border-collapse:collapse; font-size:14px; }
   th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #e2e8f0; }
-  th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; }
-  tr:hover td { background:#f8fafc; }
+  th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; position:sticky; top:0; }
   .amount-cell { font-weight:600; color:#059669; }
+  .amount-cell.chi { color:#d97706; }
+  tr.subtotal td { background:#f0fdf4; font-weight:700; color:#047857; border-top:2px solid #10b981; }
   .empty { text-align:center; color:#94a3b8; padding:24px; }
   .refresh { text-align:center; margin-top:16px; font-size:12px; color:#94a3b8; }
+  @media (max-width:640px){ .summary{grid-template-columns:1fr;} .sum-card .amount{font-size:22px;} }
 </style>
 </head>
 <body>
@@ -35,56 +38,100 @@
   <h1>💰 Quỹ Lớp C1</h1>
   <p class="subtitle">Cập nhật công khai · <span id="lastUpdate"></span></p>
 
-  <!-- Tổng tiền tới thời điểm hiện tại -->
-  <div class="total-card">
-    <div class="label">TỔNG QUỸ TỚI THỜI ĐIỂM HIỆN TẠI</div>
-    <div class="amount" id="totalAmount">...</div>
-    <div class="meta" id="totalMeta"></div>
+  <!-- Tổng quan -->
+  <div class="summary">
+    <div class="sum-card sum-thu">
+      <div class="label">TỔNG THU</div>
+      <div class="amount" id="sumThu">...</div>
+    </div>
+    <div class="sum-card sum-chi">
+      <div class="label">TỔNG CHI</div>
+      <div class="amount" id="sumChi">...</div>
+    </div>
+    <div class="sum-card sum-ton">
+      <div class="label">SỐ DƯ QUỸ HIỆN TẠI</div>
+      <div class="amount" id="sumTon">...</div>
+    </div>
   </div>
 
-  <!-- Bảng kê chi tiết -->
-  <div class="card">
-    <h2>📋 Bảng kê chi tiết</h2>
-    <table>
-      <thead>
-        <tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th><th>Ghi chú</th></tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <div class="empty" id="emptyMsg" style="display:none">Chưa có dữ liệu.</div>
-  </div>
+  <!-- Các bảng kê (section) được render tự động vào đây -->
+  <div id="sections"></div>
 
   <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
 </div>
 
 <script>
+// ===== CẤU HÌNH CÁC MỤC =====
+// Sau này thêm mục mới chỉ cần thêm 1 dòng vào đây. VD:
+// { key:'chi', title:'② Bảng kê phần Chi', icon:'📤' },
+const SECTIONS = [
+  { key:'thu', title:'① Bảng kê phần Thu', icon:'📥' },
+];
+
 const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
+// So sánh tên chuẩn tiếng Việt (xử lý dấu + chữ đ)
+const byName = (a,b) => a.name.localeCompare(b.name, 'vi');
 
 async function loadData() {
   const res = await fetch('data.json?t=' + Date.now());
-  return (await res.json()).entries || [];
+  const entries = (await res.json()).entries || [];
+  return entries.map(e => ({ ...e, type: e.type || 'thu' })); // data cũ = thu
+}
+
+function renderSection(sec, entries) {
+  const items = entries.filter(e => e.type === sec.key);
+  if (!items.length) return '';
+
+  // Sắp xếp: tên A→Z, cùng tên thì theo ngày tăng dần
+  const sorted = [...items].sort(byName || ((a,b) => a.date.localeCompare(b.date)));
+  sorted.sort((a,b) => byName(a,b) || a.date.localeCompare(b.date));
+
+  // Gom nhóm theo thành viên, mỗi nhóm kèm dòng tổng phụ
+  let rows = '', idx = 0, currentName = null, groupSum = 0;
+  const flushSubtotal = () => {
+    if (currentName !== null)
+      rows += `<tr class="subtotal"><td></td><td colspan="2">Tổng cộng — ${currentName}</td>
+        <td>${fmt(groupSum)}</td><td></td></tr>`;
+  };
+  sorted.forEach(e => {
+    if (e.name !== currentName) { flushSubtotal(); currentName = e.name; groupSum = 0; }
+    groupSum += e.amount;
+    rows += `<tr>
+      <td>${++idx}</td>
+      <td>${e.date.split('-').reverse().join('/')}</td>
+      <td>${e.name}</td>
+      <td class="amount-cell ${sec.key === 'chi' ? 'chi' : ''}">
+        ${sec.key === 'chi' ? '−' : ''}${fmt(e.amount)}</td>
+      <td>${e.note || '-'}</td>
+    </tr>`;
+  });
+  flushSubtotal();
+
+  const secTotal = items.reduce((s,e) => s + e.amount, 0);
+  const members = [...new Set(items.map(e => e.name))].length;
+  return `
+  <div class="card">
+    <h2>${sec.icon} ${sec.title}</h2>
+    <table>
+      <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th><th>Ghi chú</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr class="subtotal"><td></td>
+        <td colspan="2">TỔNG MỤC · ${members} thành viên · ${items.length} lượt</td>
+        <td>${fmt(secTotal)}</td><td></td></tr></tfoot>
+    </table>
+  </div>`;
 }
 
 function render(entries) {
-  const total = entries.reduce((s,e) => s + e.amount, 0);
-  const members = [...new Set(entries.map(e => e.name))];
-
-  document.getElementById('totalAmount').textContent = fmt(total);
-  document.getElementById('totalMeta').textContent =
-    `${members.length} thành viên · ${entries.length} lượt đóng`;
-  document.getElementById('lastUpdate').textContent =
-    'lúc ' + new Date().toLocaleString('vi-VN');
-  document.getElementById('emptyMsg').style.display = entries.length ? 'none' : 'block';
-
-  const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
-  document.getElementById('tableBody').innerHTML = sorted.map((e,i) => `
-    <tr>
-      <td>${i+1}</td>
-      <td>${e.date.split('-').reverse().join('/')}</td>
-      <td>${e.name}</td>
-      <td class="amount-cell">${fmt(e.amount)}</td>
-      <td>${e.note || '-'}</td>
-    </tr>`).join('');
+  const thu = entries.filter(e=>e.type==='thu').reduce((s,e)=>s+e.amount,0);
+  const chi = entries.filter(e=>e.type==='chi').reduce((s,e)=>s+e.amount,0);
+  document.getElementById('sumThu').textContent = fmt(thu);
+  document.getElementById('sumChi').textContent = fmt(chi);
+  document.getElementById('sumTon').textContent = fmt(thu - chi);
+  document.getElementById('lastUpdate').textContent = 'lúc ' + new Date().toLocaleString('vi-VN');
+  document.getElementById('sections').innerHTML =
+    SECTIONS.map(s => renderSection(s, entries)).join('') ||
+    '<div class="card"><div class="empty">Chưa có dữ liệu.</div></div>';
 }
 
 loadData().then(render);

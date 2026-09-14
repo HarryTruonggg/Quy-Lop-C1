@@ -78,8 +78,15 @@
       "note": "Quỹ Lớp Đợt 1"
     },
     {
-      "id": 1789351442884,
-      "name": "Bùi Phúc An",
+      "id": 1789351398548,
+      "name": "Lưu Trí An",
+      "amount": 500000,
+      "date": "2026-09-14",
+      "note": "Quỹ Lớp Đợt 1"
+    },
+    {
+      "id": 1789351459257,
+      "name": "Lý Anh Quân",
       "amount": 510500,
       "date": "2026-09-14",
       "note": "Quỹ Lớp Đợt 1"

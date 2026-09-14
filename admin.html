@@ -1,128 +1,3 @@
-Thought for 36s
-Mình không gửi file đính kèm trực tiếp qua chat được, nhưng có 2 cách để bạn có 3 file này. Cách A nhanh hơn (không cần tải gì cả):
-
-Cách A (khuyên dùng): Tạo file ngay trên GitHub, khỏi cần tải
-Trong repo của bạn:
-
-Bấm Add file → Create new file
-Gõ tên file: data.json → dán nội dung File 1 bên dưới → Commit changes
-Lặp lại tương tự với index.html (File 2) và admin.html (File 3)
-Cách B: Tự lưu file trên máy
-Mở Notepad → dán code → File → Save As:
-
-Ô File name: gõ đúng tên file (VD: index.html)
-Ô Save as type: chọn All Files
-Ô Encoding: chọn UTF-8 (quan trọng, để không lỗi tiếng Việt!)
-📄 File 1: data.json
-{ "entries": [] }
-📄 File 2: index.html (trang public)
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quỹ Nhóm</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #1e293b; padding: 24px; }
-  .container { max-width: 1000px; margin: 0 auto; }
-  h1 { text-align: center; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #64748b; margin-bottom: 24px; }
-  .total-card { background: linear-gradient(135deg,#10b981,#059669); color:#fff;
-    border-radius:16px; padding:24px; text-align:center; margin-bottom:24px;
-    box-shadow:0 4px 14px rgba(16,185,129,.3); }
-  .total-card .label { font-size:14px; opacity:.9; }
-  .total-card .amount { font-size:36px; font-weight:700; margin-top:4px; }
-  .total-card .meta { font-size:13px; opacity:.85; margin-top:6px; }
-  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px;
-    box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .card h2 { font-size:18px; margin-bottom:16px; }
-  table { width:100%; border-collapse:collapse; font-size:14px; }
-  th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #e2e8f0; }
-  th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; }
-  .amount-cell { font-weight:600; color:#059669; }
-  .empty { text-align:center; color:#94a3b8; padding:24px; }
-  .charts { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-  .chart-box { background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .chart-box h2 { font-size:16px; margin-bottom:12px; }
-  .refresh { text-align:center; margin-top:16px; font-size:12px; color:#94a3b8; }
-  @media (max-width:768px){ .charts{grid-template-columns:1fr;} }
-</style>
-</head>
-<body>
-<div class="container">
-  <h1>💰 Quỹ Nhóm</h1>
-  <p class="subtitle">Cập nhật công khai · <span id="lastUpdate"></span></p>
-
-  <div class="total-card">
-    <div class="label">TỔNG QUỸ HIỆN TẠI</div>
-    <div class="amount" id="totalAmount">...</div>
-    <div class="meta" id="totalMeta"></div>
-  </div>
-
-  <div class="card">
-    <h2>📋 Bảng kê chi tiết</h2>
-    <table>
-      <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th><th>Ghi chú</th></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <div class="empty" id="emptyMsg" style="display:none">Chưa có dữ liệu.</div>
-  </div>
-
-  <div class="charts">
-    <div class="chart-box"><h2>Theo thành viên</h2><canvas id="barChart"></canvas></div>
-    <div class="chart-box"><h2>Tỷ trọng</h2><canvas id="pieChart"></canvas></div>
-    <div class="chart-box" style="grid-column:1/-1"><h2>Quỹ lũy kế theo thời gian</h2><canvas id="lineChart"></canvas></div>
-  </div>
-  <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
-</div>
-
-<script>
-const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
-const COLORS = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#6366f1'];
-
-async function loadData() {
-  const res = await fetch('data.json?t=' + Date.now());
-  return (await res.json()).entries || [];
-}
-
-function render(entries) {
-  const total = entries.reduce((s,e) => s + e.amount, 0);
-  const members = [...new Set(entries.map(e => e.name))];
-  document.getElementById('totalAmount').textContent = fmt(total);
-  document.getElementById('totalMeta').textContent = `${members.length} thành viên · ${entries.length} lượt đóng`;
-  document.getElementById('lastUpdate').textContent = 'lúc ' + new Date().toLocaleString('vi-VN');
-  document.getElementById('emptyMsg').style.display = entries.length ? 'none' : 'block';
-
-  const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
-  document.getElementById('tableBody').innerHTML = sorted.map((e,i) => `
-    <tr><td>${i+1}</td><td>${e.date.split('-').reverse().join('/')}</td>
-    <td>${e.name}</td><td class="amount-cell">${fmt(e.amount)}</td><td>${e.note||'-'}</td></tr>`).join('');
-
-  const perMember = members.map(m => entries.filter(e=>e.name===m).reduce((s,e)=>s+e.amount,0));
-  new Chart(barChart, { type:'bar',
-    data:{ labels:members, datasets:[{data:perMember, backgroundColor:members.map((_,i)=>COLORS[i%10])}] },
-    options:{ plugins:{legend:{display:false}}, scales:{y:{ticks:{callback:v=>(v/1000)+'k'}}} } });
-  new Chart(pieChart, { type:'doughnut',
-    data:{ labels:members, datasets:[{data:perMember, backgroundColor:members.map((_,i)=>COLORS[i%10])}] },
-    options:{ plugins:{tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} (${(c.raw/total*100).toFixed(1)}%)`}}}} });
-
-  const map = new Map(); let cum = 0;
-  [...entries].sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{ cum+=e.amount; map.set(e.date,cum); });
-  new Chart(lineChart, { type:'line',
-    data:{ labels:[...map.keys()].map(d=>d.split('-').reverse().join('/')),
-      datasets:[{label:'Tổng quỹ', data:[...map.values()], borderColor:'#10b981',
-        backgroundColor:'rgba(16,185,129,.15)', fill:true, tension:.3}]},
-    options:{ scales:{y:{ticks:{callback:v=>(v/1000)+'k'}}} } });
-}
-
-loadData().then(render);
-setInterval(() => location.reload(), 5*60*1000);
-</script>
-</body>
-</html>
-📄 File 3: admin.html (trang nhập liệu)
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -138,14 +13,16 @@ setInterval(() => location.reload(), 5*60*1000);
   h2 { font-size:16px; margin-bottom:14px; }
   .field { margin-bottom:12px; }
   .field label { display:block; font-size:13px; color:#475569; margin-bottom:4px; }
-  .field input { width:100%; padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; }
+  .field input, .field select { width:100%; padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; }
   button { padding:10px 18px; border:none; border-radius:8px; background:#2563eb; color:#fff;
     font-size:14px; font-weight:600; cursor:pointer; }
   button:hover { background:#1d4ed8; }
   #status { margin-top:12px; font-size:14px; font-weight:600; }
   .ok { color:#059669; } .err { color:#dc2626; }
   .warn { background:#fef3c7; border:1px solid #f59e0b; border-radius:8px; padding:10px; font-size:13px; margin-bottom:16px; }
-  .recent { font-size:13px; color:#64748b; margin-top:12px; }
+  .recent { font-size:13px; color:#64748b; margin-top:12px; line-height:1.7; }
+  .type-thu { color:#059669; font-weight:600; }
+  .type-chi { color:#d97706; font-weight:600; }
 </style>
 </head>
 <body>
@@ -155,20 +32,28 @@ setInterval(() => location.reload(), 5*60*1000);
 
   <div class="card">
     <h2>1. Kết nối GitHub</h2>
-    <div class="field"><label>GitHub username</label><input id="ghUser" placeholder="vd: nguyenvana"></div>
-    <div class="field"><label>Tên repo</label><input id="ghRepo" placeholder="vd: quy-nhom"></div>
-    <div class="field"><label>Fine-grained token (quyền Contents: Read & Write)</label>
+    <div class="field"><label>GitHub username</label><input id="ghUser" placeholder="vd: harrytruonggg"></div>
+    <div class="field"><label>Tên repo</label><input id="ghRepo" placeholder="vd: quy-lop-c1"></div>
+    <div class="field"><label>Fine-grained token (quyền Contents: Read &amp; Write)</label>
       <input id="ghToken" type="password" placeholder="github_pat_..."></div>
     <button onclick="saveConfig()">💾 Lưu kết nối</button>
   </div>
 
   <div class="card">
-    <h2>2. Thêm lượt đóng góp</h2>
-    <div class="field"><label>Tên thành viên</label><input id="name" list="nameList" placeholder="VD: Minh Anh">
+    <h2>2. Thêm lượt thu / chi</h2>
+    <div class="field">
+      <label>Loại</label>
+      <select id="type">
+        <option value="thu">📥 Thu (đóng góp)</option>
+        <option value="chi">📤 Chi (chi tiêu)</option>
+      </select>
+    </div>
+    <div class="field"><label>Tên thành viên / Người nhận</label>
+      <input id="name" list="nameList" placeholder="VD: Minh Anh">
       <datalist id="nameList"></datalist></div>
     <div class="field"><label>Số tiền (₫)</label><input id="amount" type="number" min="1" step="1000" placeholder="100000"></div>
     <div class="field"><label>Ngày</label><input id="date" type="date"></div>
-    <div class="field"><label>Ghi chú</label><input id="note" placeholder="VD: Quỹ tháng 9"></div>
+    <div class="field"><label>Ghi chú</label><input id="note" placeholder="VD: Quỹ tháng 9 / Mua nước uống"></div>
     <button onclick="submitEntry()">➕ Thêm vào quỹ</button>
     <div id="status"></div>
     <div class="recent" id="recent"></div>
@@ -196,6 +81,10 @@ function saveConfig() {
   loadRecent();
 }
 
+function authHeaders() {
+  return { Authorization: `Bearer ${cfg.token}`, Accept: 'application/vnd.github+json' };
+}
+
 async function fetchEntries() {
   const res = await fetch(API(cfg.user, cfg.repo, 'data.json?t=' + Date.now()));
   if (!res.ok) throw new Error('Không đọc được data.json — kiểm tra repo/Pages');
@@ -206,33 +95,30 @@ async function fetchEntries() {
   return { entries: data.entries || [], sha };
 }
 
-function authHeaders() {
-  return { Authorization: `Bearer ${cfg.token}`, Accept: 'application/vnd.github+json' };
-}
-
 async function submitEntry() {
   const name   = document.getElementById('name').value.trim();
   const amount = +document.getElementById('amount').value;
   const date   = document.getElementById('date').value;
   const note   = document.getElementById('note').value.trim();
+  const type   = document.getElementById('type').value;
   if (!name || !amount || !date) return setStatus('Thiếu thông tin!', 'err');
   if (!cfg.token) return setStatus('Chưa lưu kết nối GitHub!', 'err');
 
   setStatus('Đang lưu...', '');
   try {
     const { entries, sha } = await fetchEntries();
-    entries.push({ id: Date.now(), name, amount, date, note });
+    entries.push({ id: Date.now(), name, amount, date, note, type });
     const res = await fetch(GH('data.json'), {
       method: 'PUT',
       headers: { ...authHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: `Thêm đóng góp: ${name} ${amount.toLocaleString('vi-VN')}đ (${date})`,
+        message: `${type === 'chi' ? 'Chi' : 'Thu'}: ${name} ${amount.toLocaleString('vi-VN')}đ (${date})`,
         content: btoa(unescape(encodeURIComponent(JSON.stringify({ entries }, null, 2)))),
         sha
       })
     });
     if (!res.ok) throw new Error('Ghi thất bại: ' + res.status);
-    setStatus(`Đã thêm ${name}: ${amount.toLocaleString('vi-VN')}đ ✔ (trang public cập nhật sau ~1 phút)`, 'ok');
+    setStatus(`Đã thêm [${type.toUpperCase()}] ${name}: ${amount.toLocaleString('vi-VN')}đ ✔ (trang public cập nhật sau ~1 phút)`, 'ok');
     document.getElementById('name').value = '';
     document.getElementById('amount').value = '';
     document.getElementById('note').value = '';
@@ -245,10 +131,14 @@ async function loadRecent() {
   try {
     const res = await fetch(API(cfg.user, cfg.repo, 'data.json?t=' + Date.now()));
     const entries = (await res.json()).entries || [];
-    const members = [...new Set(entries.map(e => e.name))];
+    const members = [...new Set(entries.filter(e => (e.type||'thu') === 'thu').map(e => e.name))];
     document.getElementById('nameList').innerHTML = members.map(m => `<option value="${m}">`).join('');
-    const last5 = entries.slice(-5).reverse()
-      .map(e => `${e.date} · ${e.name}: ${e.amount.toLocaleString('vi-VN')}đ`).join('<br>');
+    const last5 = entries.slice(-5).reverse().map(e => {
+      const t = e.type || 'thu';
+      const cls = t === 'chi' ? 'type-chi' : 'type-thu';
+      const sign = t === 'chi' ? '−' : '+';
+      return `${e.date} · <span class="${cls}">${sign}</span> ${e.name}: ${e.amount.toLocaleString('vi-VN')}đ`;
+    }).join('<br>');
     document.getElementById('recent').innerHTML = last5 ? '<b>5 lượt gần nhất:</b><br>' + last5 : '';
   } catch {}
 }

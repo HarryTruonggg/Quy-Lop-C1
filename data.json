@@ -182,6 +182,14 @@
       "date": "2026-09-11",
       "note": "Quỹ Lớp Đợt 1",
       "type": "thu"
+    },
+    {
+      "id": 1789385787445,
+      "name": "Nguyễn Thanh Tùng",
+      "amount": 510500,
+      "date": "2026-09-14",
+      "note": "Quỹ Lớp Đợt 1",
+      "type": "thu"
     }
   ]
 }

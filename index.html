@@ -4,106 +4,180 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quỹ Lớp C1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f4f8; color:#1e293b; padding:24px; }
-  .container { max-width:1000px; margin:0 auto; }
-  h1 { text-align:center; margin-bottom:4px; }
-  .subtitle { text-align:center; color:#64748b; margin-bottom:24px; }
+  body { font-family:'Be Vietnam Pro','Segoe UI',Arial,sans-serif; background:#f1f5f9; color:#0f172a; }
 
-  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
-  .sum-card { border-radius:16px; padding:20px; text-align:center; color:#fff; }
-  .sum-card .label { font-size:13px; opacity:.9; letter-spacing:1px; }
-  .sum-card .amount { font-size:28px; font-weight:700; margin-top:6px; }
-  .sum-thu { background:linear-gradient(135deg,#10b981,#059669); box-shadow:0 4px 14px rgba(16,185,129,.3); }
-  .sum-chi { background:linear-gradient(135deg,#f59e0b,#d97706); box-shadow:0 4px 14px rgba(245,158,11,.3); }
-  .sum-ton { background:linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 4px 14px rgba(37,99,235,.3); }
+  /* ===== HERO ===== */
+  .hero { background:linear-gradient(135deg,#0ea5e9 0%,#6366f1 60%,#8b5cf6 100%);
+    color:#fff; padding:48px 24px 88px; text-align:center; position:relative; overflow:hidden; }
+  .hero::after { content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% 20%, rgba(255,255,255,.18), transparent 40%); }
+  .hero .ico { font-size:46px; }
+  .hero h1 { font-size:30px; font-weight:800; margin-top:6px; letter-spacing:.5px; }
+  .hero .sub { font-size:14px; opacity:.9; margin-top:6px; }
 
-  .card { background:#fff; border-radius:16px; padding:20px; margin-bottom:24px;
-    box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .card > h2 { font-size:18px; margin-bottom:14px; }
+  .container { max-width:1000px; margin:0 auto; padding:0 20px; }
 
-  /* Dropdown theo ghi chú (phần THU) */
-  details { border:1px solid #e2e8f0; border-radius:12px; margin-bottom:10px; overflow:hidden; }
-  details[open] { border-color:#10b981; }
-  summary { display:flex; justify-content:space-between; align-items:center;
-    padding:14px 16px; cursor:pointer; list-style:none; user-select:none;
-    font-size:15px; font-weight:600; transition:background .2s; }
+  /* ===== 3 THẺ SUMMARY (nổi đè lên hero) ===== */
+  .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+    margin-top:-56px; position:relative; z-index:2; }
+  .sum-card { background:#fff; border-radius:18px; padding:20px; text-align:center;
+    box-shadow:0 10px 30px rgba(2,6,23,.12); }
+  .sum-card .ic { width:44px; height:44px; border-radius:14px; margin:0 auto 10px;
+    display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .ic-thu { background:#dcfce7; } .ic-chi { background:#fef3c7; } .ic-ton { background:#dbeafe; }
+  .sum-card .label { font-size:12px; font-weight:600; color:#64748b; letter-spacing:1px; }
+  .sum-card .amount { font-size:26px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .amount.thu { color:#059669; } .amount.chi { color:#d97706; } .amount.ton { color:#2563eb; }
+
+  /* ===== THỐNG KÊ NHANH ===== */
+  .quickstats { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:20px 0; }
+  .qs { background:#fff; border-radius:999px; padding:8px 16px; font-size:13px; color:#475569;
+    box-shadow:0 2px 6px rgba(0,0,0,.05); }
+  .qs b { color:#0f172a; }
+
+  /* ===== CƠ CẤU QUỸ ===== */
+  .structure { background:#fff; border-radius:18px; padding:18px 20px; margin-bottom:24px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .structure h3 { font-size:13px; color:#64748b; font-weight:600; margin-bottom:10px; letter-spacing:.5px; }
+  .bar { display:flex; height:14px; border-radius:999px; overflow:hidden; background:#e2e8f0; }
+  .bar .seg-chi { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+  .bar .seg-ton { background:linear-gradient(90deg,#10b981,#34d399); }
+  .legend { display:flex; gap:18px; margin-top:10px; font-size:12px; color:#475569; flex-wrap:wrap; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; }
+
+  /* ===== SECTION ===== */
+  .card { background:#fff; border-radius:18px; padding:20px; margin-bottom:24px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .card > h2 { font-size:17px; font-weight:800; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+
+  /* Dropdown đồng nhất cho cả Thu & Chi */
+  details { border:1px solid #e2e8f0; border-radius:14px; margin-bottom:10px; overflow:hidden;
+    transition:border-color .2s, box-shadow .2s; }
+  details[open] { border-color:#6366f1; box-shadow:0 4px 14px rgba(99,102,241,.12); }
+  summary { display:flex; justify-content:space-between; align-items:center; gap:12px;
+    padding:15px 18px; cursor:pointer; list-style:none; user-select:none;
+    font-size:15px; font-weight:700; transition:background .2s; }
   summary:hover { background:#f8fafc; }
   summary::-webkit-details-marker { display:none; }
   summary .left { display:flex; align-items:center; gap:10px; min-width:0; }
   summary .arrow { transition:transform .25s; color:#94a3b8; font-size:12px; flex-shrink:0; }
   details[open] summary .arrow { transform:rotate(90deg); }
-  summary .note-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  summary .count { font-size:12px; color:#94a3b8; font-weight:400; flex-shrink:0; }
-  summary .total { font-size:15px; font-weight:700; color:#059669; flex-shrink:0; margin-left:12px; }
-  .body { padding:0 16px 14px; }
+  summary .ttl { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  summary .count { font-size:12px; color:#94a3b8; font-weight:500; flex-shrink:0; }
+  /* TỔNG TIỀN — đồng nhất ở mọi heading */
+  summary .sum-amt { font-size:15px; font-weight:800; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .sum-amt.thu { color:#059669; } .sum-amt.chi { color:#d97706; }
+  .body { padding:0 18px 16px; }
 
   table { width:100%; border-collapse:collapse; font-size:14px; }
-  th, td { padding:9px 10px; text-align:left; border-bottom:1px solid #e2e8f0; vertical-align:middle; }
-  th { background:#f8fafc; color:#475569; font-weight:600; font-size:13px; }
+  th, td { padding:10px 10px; text-align:left; border-bottom:1px solid #eef2f7; vertical-align:middle; }
+  th { background:#f8fafc; color:#64748b; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
   tr:last-child td { border-bottom:none; }
-  .amount-cell { font-weight:600; color:#059669; white-space:nowrap; }
+  tr:hover td { background:#fafcff; }
+  .amount-cell { font-weight:700; color:#059669; white-space:nowrap; font-variant-numeric:tabular-nums; }
   .amount-cell.chi { color:#d97706; }
+  .name-cell { font-weight:600; }
 
-  /* Ảnh nghiệm thu (phần CHI) */
+  /* Ảnh nghiệm thu */
   .thumbs { display:flex; gap:6px; flex-wrap:wrap; }
-  .thumbs img { width:56px; height:56px; object-fit:cover; border-radius:8px;
-    border:2px solid #e2e8f0; cursor:zoom-in; transition:transform .15s; }
+  .thumbs img { width:54px; height:54px; object-fit:cover; border-radius:9px;
+    border:2px solid #e2e8f0; cursor:zoom-in; transition:transform .15s, border-color .15s; }
   .thumbs img:hover { transform:scale(1.08); border-color:#f59e0b; }
-  .no-img { color:#cbd5e1; font-size:18px; }
+  .no-img { color:#cbd5e1; }
 
-  /* Lightbox phóng to ảnh */
-  #lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85);
+  #lightbox { display:none; position:fixed; inset:0; background:rgba(15,23,42,.9);
     z-index:99; justify-content:center; align-items:center; cursor:zoom-out; padding:20px; }
   #lightbox.show { display:flex; }
-  #lightbox img { max-width:95%; max-height:95%; border-radius:8px; }
+  #lightbox img { max-width:95%; max-height:95%; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
 
-  .empty { text-align:center; color:#94a3b8; padding:24px; background:#fff;
-    border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-  .refresh { text-align:center; margin-top:16px; font-size:12px; color:#94a3b8; }
-  @media (max-width:640px){ .summary{grid-template-columns:1fr;} .sum-card .amount{font-size:22px;} .thumbs img{width:44px;height:44px;} }
+  .empty { text-align:center; color:#94a3b8; padding:30px; background:#fff; border-radius:18px;
+    box-shadow:0 2px 10px rgba(0,0,0,.06); }
+  .refresh { text-align:center; margin:8px 0 30px; font-size:12px; color:#94a3b8; }
+  .refresh a { color:#6366f1; text-decoration:none; font-weight:600; }
+
+  @media (max-width:640px){
+    .summary { grid-template-columns:1fr; margin-top:-40px; }
+    .sum-card .amount { font-size:22px; }
+    .hero h1 { font-size:24px; }
+    .thumbs img { width:44px; height:44px; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>💰 Quỹ Lớp C1</h1>
-  <p class="subtitle">Cập nhật công khai · <span id="lastUpdate"></span></p>
 
-  <div class="summary">
-    <div class="sum-card sum-thu">
-      <div class="label">TỔNG THU</div>
-      <div class="amount" id="sumThu">...</div>
-    </div>
-    <div class="sum-card sum-chi">
-      <div class="label">TỔNG CHI</div>
-      <div class="amount" id="sumChi">...</div>
-    </div>
-    <div class="sum-card sum-ton">
-      <div class="label">SỐ DƯ QUỸ HIỆN TẠI</div>
-      <div class="amount" id="sumTon">...</div>
-    </div>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="ico">💰</div>
+    <h1>Quỹ Lớp C1</h1>
+    <div class="sub">Minh bạch thu chi · Cập nhật công khai · <span id="lastUpdate"></span></div>
   </div>
 
-  <div id="sections"></div>
+  <div class="container">
+    <!-- 3 THẺ TỔNG QUAN -->
+    <div class="summary">
+      <div class="sum-card">
+        <div class="ic ic-thu">📥</div>
+        <div class="label">TỔNG THU</div>
+        <div class="amount thu" id="sumThu">...</div>
+      </div>
+      <div class="sum-card">
+        <div class="ic ic-chi">📤</div>
+        <div class="label">TỔNG CHI</div>
+        <div class="amount chi" id="sumChi">...</div>
+      </div>
+      <div class="sum-card">
+        <div class="ic ic-ton">🏦</div>
+        <div class="label">SỐ DƯ HIỆN TẠI</div>
+        <div class="amount ton" id="sumTon">...</div>
+      </div>
+    </div>
 
-  <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
-</div>
+    <!-- THỐNG KÊ NHANH -->
+    <div class="quickstats">
+      <span class="qs">👥 <b id="qsMembers">0</b> thành viên</span>
+      <span class="qs">🧾 <b id="qsCount">0</b> lượt thu</span>
+      <span class="qs">📊 TB <b id="qsAvg">0 ₫</b> / người</span>
+    </div>
 
-<!-- Lightbox -->
-<div id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" src=""></div>
+    <!-- CƠ CẤU QUỸ -->
+    <div class="structure" id="structureBox">
+      <h3>CƠ CẤU QUỸ</h3>
+      <div class="bar">
+        <div class="seg-chi" id="segChi" style="width:0%"></div>
+        <div class="seg-ton" id="segTon" style="width:100%"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:#f59e0b"></i>Đã chi <b id="lgChi">0%</b></span>
+        <span><i style="background:#10b981"></i>Còn lại <b id="lgTon">100%</b></span>
+      </div>
+    </div>
+
+    <!-- CÁC DANH MỤC -->
+    <div id="sections"></div>
+
+    <p class="refresh">Trang tự làm mới mỗi 5 phút · <a href="#" onclick="location.reload()">Tải lại ngay</a></p>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" src=""></div>
 
 <script>
-// ===== CẤU HÌNH CÁC DANH MỤC =====
-// mode: 'grouped' = dropdown theo ghi chú (THU) | 'table' = 1 bảng duy nhất (CHI)
+// ===== CẤU HÌNH DANH MỤC =====
+// mode 'grouped' = nhiều dropdown theo ghi chú (THU)
+// mode 'single'  = 1 dropdown duy nhất (CHI)
 const SECTIONS = [
   { key:'thu', title:'📥 BẢNG KÊ PHẦN THU', mode:'grouped', openFirst:true },
-  { key:'chi', title:'📤 BẢNG KÊ PHẦN CHI', mode:'table' },
+  { key:'chi', title:'📤 BẢNG KÊ PHẦN CHI', mode:'single',  open:true },
 ];
 
 const fmt = n => n.toLocaleString('vi-VN') + ' ₫';
 const byName = (a,b) => a.name.localeCompare(b.name, 'vi');
-const vnd = d => d.split('-').reverse().join('/');
+const vnd = d => (d||'').split('-').reverse().join('/');
 
 async function loadData() {
   const res = await fetch('data.json?t=' + Date.now());
@@ -115,7 +189,6 @@ function openImg(src) {
   document.getElementById('lightboxImg').src = src;
   document.getElementById('lightbox').classList.add('show');
 }
-
 function thumbsHTML(e) {
   const imgs = e.imgs && e.imgs.length ? e.imgs : (e.img ? [e.img] : []);
   if (!imgs.length) return '<span class="no-img">—</span>';
@@ -123,7 +196,19 @@ function thumbsHTML(e) {
     `<img src="${p}" loading="lazy" onclick="openImg('${p}')" alt="Ảnh nghiệm thu">`).join('')}</div>`;
 }
 
-/* ---- Phần THU: dropdown theo ghi chú ---- */
+/* Heading dropdown ĐỒNG NHẤT: arrow + tiêu đề + số lượt | tổng tiền góc phải */
+function summaryHTML(open, title, count, total, cls) {
+  return `<summary>
+    <span class="left">
+      <span class="arrow">▶</span>
+      <span class="ttl">${title}</span>
+      <span class="count">${count}</span>
+    </span>
+    <span class="sum-amt ${cls}">${total}</span>
+  </summary>`;
+}
+
+/* ---- THU: nhiều dropdown, mỗi ghi chú = 1 dropdown ---- */
 function renderGrouped(sec, entries) {
   const items = entries.filter(e => e.type === sec.key);
   if (!items.length) return '';
@@ -142,18 +227,15 @@ function renderGrouped(sec, entries) {
     const sorted = [...list].sort((a,b) => byName(a,b) || a.date.localeCompare(b.date));
     const gTotal = sorted.reduce((s,e) => s + e.amount, 0);
     const rows = sorted.map((e,i) => `
-      <tr><td>${i+1}</td><td>${vnd(e.date)}</td><td>${e.name}</td>
-      <td class="amount-cell">${fmt(e.amount)}</td></tr>`).join('');
+      <tr>
+        <td>${i+1}</td>
+        <td>${vnd(e.date)}</td>
+        <td class="name-cell">${e.name}</td>
+        <td class="amount-cell">${fmt(e.amount)}</td>
+      </tr>`).join('');
     return `
     <details ${sec.openFirst && gi === 0 ? 'open' : ''}>
-      <summary>
-        <span class="left">
-          <span class="arrow">▶</span>
-          <span class="note-title">${note}</span>
-          <span class="count">${sorted.length} lượt</span>
-        </span>
-        <span class="total">${fmt(gTotal)}</span>
-      </summary>
+      ${summaryHTML(sec.openFirst && gi===0, note, sorted.length + ' lượt', fmt(gTotal), 'thu')}
       <div class="body">
         <table>
           <thead><tr><th>#</th><th>Ngày</th><th>Thành viên</th><th>Số tiền</th></tr></thead>
@@ -165,8 +247,8 @@ function renderGrouped(sec, entries) {
   return `<div class="card"><h2>${sec.title}</h2>${dropdowns}</div>`;
 }
 
-/* ---- Phần CHI: 1 bảng duy nhất, mới nhất trước, có ảnh nghiệm thu ---- */
-function renderTable(sec, entries) {
+/* ---- CHI: 1 dropdown duy nhất, bên trong là 1 bảng (có ảnh nghiệm thu) ---- */
+function renderSingle(sec, entries) {
   const items = entries.filter(e => e.type === sec.key);
   if (!items.length) return '';
   const sorted = [...items].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
@@ -175,31 +257,53 @@ function renderTable(sec, entries) {
     <tr>
       <td>${i+1}</td>
       <td>${vnd(e.date)}</td>
-      <td>${e.name}</td>
+      <td class="name-cell">${e.name}</td>
       <td class="amount-cell chi">−${fmt(e.amount)}</td>
       <td>${e.note || '-'}</td>
       <td>${thumbsHTML(e)}</td>
     </tr>`).join('');
   return `
   <div class="card">
-    <h2>${sec.title} <span style="font-size:13px;color:#94a3b8;font-weight:400">
-      · ${sorted.length} khoản · Tổng: <b style="color:#d97706">−${fmt(total)}</b></span></h2>
-    <table>
-      <thead><tr><th>#</th><th>Ngày</th><th>Hạng mục / Người nhận</th><th>Số tiền</th><th>Ghi chú</th><th>Ảnh nghiệm thu</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
+    <h2>${sec.title}</h2>
+    <details ${sec.open ? 'open' : ''}>
+      ${summaryHTML(sec.open, 'Chi tiết các khoản chi', sorted.length + ' khoản', '−' + fmt(total), 'chi')}
+      <div class="body">
+        <table>
+          <thead><tr><th>#</th><th>Ngày</th><th>Hạng mục / Người nhận</th><th>Số tiền</th><th>Ghi chú</th><th>Ảnh nghiệm thu</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </details>
   </div>`;
 }
 
 function render(entries) {
-  const thu = entries.filter(e=>e.type==='thu').reduce((s,e)=>s+e.amount,0);
+  const thuArr = entries.filter(e=>e.type==='thu');
+  const thu = thuArr.reduce((s,e)=>s+e.amount,0);
   const chi = entries.filter(e=>e.type==='chi').reduce((s,e)=>s+e.amount,0);
+  const ton = thu - chi;
+
   document.getElementById('sumThu').textContent = fmt(thu);
   document.getElementById('sumChi').textContent = fmt(chi);
-  document.getElementById('sumTon').textContent = fmt(thu - chi);
-  document.getElementById('lastUpdate').textContent = 'lúc ' + new Date().toLocaleString('vi-VN');
+  document.getElementById('sumTon').textContent = fmt(ton);
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleString('vi-VN');
+
+  // Thống kê nhanh
+  const members = new Set(thuArr.map(e=>e.name)).size;
+  document.getElementById('qsMembers').textContent = members;
+  document.getElementById('qsCount').textContent = thuArr.length;
+  document.getElementById('qsAvg').textContent = members ? fmt(Math.round(thu/members)) : '0 ₫';
+
+  // Cơ cấu quỹ
+  const chiPct = thu > 0 ? Math.min(100, Math.round(chi/thu*100)) : 0;
+  document.getElementById('segChi').style.width = chiPct + '%';
+  document.getElementById('segTon').style.width = (100-chiPct) + '%';
+  document.getElementById('lgChi').textContent = chiPct + '%';
+  document.getElementById('lgTon').textContent = (100-chiPct) + '%';
+  document.getElementById('structureBox').style.display = thu > 0 ? 'block' : 'none';
+
   document.getElementById('sections').innerHTML = SECTIONS.map(s =>
-    s.mode === 'table' ? renderTable(s, entries) : renderGrouped(s, entries)
+    s.mode === 'single' ? renderSingle(s, entries) : renderGrouped(s, entries)
   ).join('') || '<div class="empty">Chưa có dữ liệu.</div>';
 }
 

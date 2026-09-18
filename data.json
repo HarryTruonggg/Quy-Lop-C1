@@ -206,6 +206,20 @@
       "date": "2026-09-15",
       "note": "Quỹ Lớp Đợt 1",
       "type": "thu"
+    },
+    {
+      "id": 1789730486705,
+      "name": "Đồ Dùng Học Tập Đầu Năm",
+      "amount": 3370500,
+      "date": "2026-09-18",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1789730477747-nqavi.jpg",
+        "images/1789730480039-h588u.jpg",
+        "images/1789730482210-2bzes.jpg",
+        "images/1789730484100-nit8u.jpg"
+      ]
     }
   ]
 }

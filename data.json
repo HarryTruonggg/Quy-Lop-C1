@@ -220,6 +220,14 @@
         "images/1789730482210-2bzes.jpg",
         "images/1789730484100-nit8u.jpg"
       ]
+    },
+    {
+      "id": 1789731287753,
+      "name": "Đào Điệp Thảo Chi",
+      "amount": 500000,
+      "date": "2026-09-14",
+      "note": "Quỹ Lớp Đợt 1",
+      "type": "thu"
     }
   ]
 }

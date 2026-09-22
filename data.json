@@ -228,6 +228,21 @@
       "date": "2026-09-14",
       "note": "Quỹ Lớp Đợt 1",
       "type": "thu"
+    },
+    {
+      "id": 1790045008849,
+      "name": "Liên Hoan Trung Thu",
+      "amount": 1980000,
+      "date": "2026-09-21",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1790044998747-96stm.jpg",
+        "images/1790045000850-87p61.jpg",
+        "images/1790045002646-kz1v9.jpg",
+        "images/1790045004057-6kmyd.jpg",
+        "images/1790045005833-mgbzh.jpg"
+      ]
     }
   ]
 }

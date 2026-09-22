@@ -243,6 +243,18 @@
         "images/1790045004057-6kmyd.jpg",
         "images/1790045005833-mgbzh.jpg"
       ]
+    },
+    {
+      "id": 1790055125885,
+      "name": "Túi Bóng & Chun Buộc Tóc",
+      "amount": 115000,
+      "date": "2026-09-22",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1790055121223-17obu.jpg",
+        "images/1790055123403-ogsda.jpg"
+      ]
     }
   ]
 }

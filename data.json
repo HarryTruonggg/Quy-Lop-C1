@@ -255,6 +255,17 @@
         "images/1790055121223-17obu.jpg",
         "images/1790055123403-ogsda.jpg"
       ]
+    },
+    {
+      "id": 1790216926839,
+      "name": "Mâm Trung Thu Khối C",
+      "amount": 553500,
+      "date": "2026-09-24",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1790216923269-gy98l.jpg"
+      ]
     }
   ]
 }

@@ -285,6 +285,18 @@
       "imgs": [
         "images/1790592996863-t6qpe.jpg"
       ]
+    },
+    {
+      "id": 1790593122337,
+      "name": "Đồ Làm Lòng Đèn Tại Lớp",
+      "amount": 69000,
+      "date": "2026-09-28",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1790593116777-uz7j1.jpg",
+        "images/1790593119292-j3wjz.jpg"
+      ]
     }
   ]
 }

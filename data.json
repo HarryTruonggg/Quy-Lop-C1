@@ -274,6 +274,17 @@
       "date": "2026-09-25",
       "note": "Tiền Giải Trung Thu",
       "type": "thu"
+    },
+    {
+      "id": 1790592999659,
+      "name": "Quỹ Trung Thu Trường",
+      "amount": 520740,
+      "date": "2026-09-25",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1790592996863-t6qpe.jpg"
+      ]
     }
   ]
 }

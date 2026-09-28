@@ -266,6 +266,14 @@
       "imgs": [
         "images/1790216923269-gy98l.jpg"
       ]
+    },
+    {
+      "id": 1790592916953,
+      "name": "Khối C",
+      "amount": 60000,
+      "date": "2026-09-25",
+      "note": "Tiền Giải Trung Thu",
+      "type": "thu"
     }
   ]
 }

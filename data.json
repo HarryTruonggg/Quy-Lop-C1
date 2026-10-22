@@ -308,6 +308,18 @@
       "imgs": [
         "images/1792633619982-8m7wn.jpg"
       ]
+    },
+    {
+      "id": 1792633752239,
+      "name": "Quà Tặng 20/10",
+      "amount": 1100000,
+      "date": "2026-10-22",
+      "note": "500k tiền hoa, 300k/ cô",
+      "type": "chi",
+      "imgs": [
+        "images/1792633747029-av1zx.jpg",
+        "images/1792633749395-1v7zi.jpg"
+      ]
     }
   ]
 }

@@ -297,6 +297,17 @@
         "images/1790593116777-uz7j1.jpg",
         "images/1790593119292-j3wjz.jpg"
       ]
+    },
+    {
+      "id": 1792633623857,
+      "name": "Tham Quan Vườn Rau",
+      "amount": 120000,
+      "date": "2026-10-22",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1792633619982-8m7wn.jpg"
+      ]
     }
   ]
 }

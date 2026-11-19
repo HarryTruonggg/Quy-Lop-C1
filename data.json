@@ -356,6 +356,17 @@
         "images/1795054594111-z4qfb.jpg",
         "images/1795054596382-m1mvj.jpg"
       ]
+    },
+    {
+      "id": 1795054772486,
+      "name": "Quỹ Khối 20/11",
+      "amount": 100000,
+      "date": "2026-11-18",
+      "note": "",
+      "type": "chi",
+      "imgs": [
+        "images/1795054769739-mqf7j.jpg"
+      ]
     }
   ]
 }

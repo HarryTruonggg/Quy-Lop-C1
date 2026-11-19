@@ -332,6 +332,14 @@
       "imgs": [
         "images/1794903125214-ckwet.jpg"
       ]
+    },
+    {
+      "id": 1795054250427,
+      "name": "Quà Tặng 20/11",
+      "amount": 1500000,
+      "date": "2026-11-19",
+      "note": "500k: Tiền Hoa & 500k/ cô",
+      "type": "chi"
     }
   ]
 }

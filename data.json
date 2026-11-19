@@ -340,6 +340,18 @@
       "date": "2026-11-19",
       "note": "500k: Tiền Hoa & 500k/ cô",
       "type": "chi"
+    },
+    {
+      "id": 1795054293058,
+      "name": "Tiền Hoa 20/11",
+      "amount": 1500000,
+      "date": "2026-11-19",
+      "note": "500K Tiền Hoa & 500k/ cô",
+      "type": "chi",
+      "imgs": [
+        "images/1795054282717-ngsy2.jpg",
+        "images/1795054289408-8n0mh.jpg"
+      ]
     }
   ]
 }
